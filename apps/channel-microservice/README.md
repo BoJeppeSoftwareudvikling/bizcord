@@ -5,13 +5,13 @@ ASP.NET Core Web API for Bizcord channel management.
 ## Run
 
 ```bash
-dotnet run --project src/ChannelService
+dotnet run --project src
 ```
 
 ## Test
 
 ```bash
-dotnet test tests/ChannelService.Tests
+dotnet test tests
 ```
 
 ## Docker

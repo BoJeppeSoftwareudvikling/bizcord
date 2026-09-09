@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ChannelService\ChannelService.csproj" />
+    <ProjectReference Include="..\src\WebAPI.csproj" />
   </ItemGroup>
 
 </Project>

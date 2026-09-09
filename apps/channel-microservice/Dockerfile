@@ -3,16 +3,15 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-COPY ["src/ChannelService/ChannelService.csproj", "ChannelService/"]
-RUN dotnet restore "ChannelService/ChannelService.csproj"
-COPY src/ChannelService/. ChannelService/
-WORKDIR /src/ChannelService
-RUN dotnet build "ChannelService.csproj" -c Release -o /app/build
+COPY ["src/WebAPI.csproj", "."]
+RUN dotnet restore "WebAPI.csproj"
+COPY src/. .
+RUN dotnet build "WebAPI.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "ChannelService.csproj" -c Release -o /app/publish
+RUN dotnet publish "WebAPI.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "ChannelService.dll"]
+ENTRYPOINT ["dotnet", "WebAPI.dll"]
