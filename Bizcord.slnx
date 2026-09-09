@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/apps/" />
+  <Folder Name="/apps/channel-microservice/" />
+  <Folder Name="/apps/channel-microservice/src/">
+    <Project Path="apps/channel-microservice/src/ChannelService/ChannelService.csproj" />
+  </Folder>
+  <Folder Name="/apps/channel-microservice/tests/">
+    <Project Path="apps/channel-microservice/tests/ChannelService.Tests/ChannelService.Tests.csproj" />
+  </Folder>
+</Solution>
