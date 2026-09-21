@@ -3,9 +3,12 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-COPY ["src/WebAPI.csproj", "."]
-RUN dotnet restore "WebAPI.csproj"
-COPY src/. .
+COPY ["SharedModels/SharedModels.csproj", "SharedModels/"]
+COPY ["apps/channel-microservice/src/WebAPI.csproj", "apps/channel-microservice/src/"]
+RUN dotnet restore "apps/channel-microservice/src/WebAPI.csproj"
+COPY SharedModels/. SharedModels/
+COPY apps/channel-microservice/src/. apps/channel-microservice/src/
+WORKDIR /src/apps/channel-microservice/src
 RUN dotnet build "WebAPI.csproj" -c Release -o /app/build
 
 FROM build AS publish

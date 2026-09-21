@@ -7,4 +7,5 @@
   <Folder Name="/apps/channel-microservice/tests/">
     <Project Path="apps/channel-microservice/tests/ChannelService.Tests.csproj" />
   </Folder>
+  <Project Path="SharedModels/SharedModels.csproj" />
 </Solution>
