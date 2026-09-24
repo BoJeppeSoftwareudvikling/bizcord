@@ -1,4 +1,4 @@
-namespace ChannelService.Messaging;
+namespace MessageClient;
 
 // Holder applikationskoden uafhængig af EasyNetQ og RabbitMQ.
 public interface IMessageClient

@@ -5,9 +5,13 @@
     <Project Path="apps/channel-microservice/dtos/ChannelService.Dtos.csproj" />
   </Folder>
   <Folder Name="/apps/channel-microservice/src/">
-    <Project Path="apps/channel-microservice/src/WebAPI.csproj" />
+    <Project Path="apps/channel-microservice/src/ChannelMicroservice.Presentation/ChannelMicroservice.Presentation.csproj" />
   </Folder>
   <Folder Name="/apps/channel-microservice/tests/">
     <Project Path="apps/channel-microservice/tests/ChannelService.Tests.csproj" />
+  </Folder>
+  <Folder Name="/packages/">
+    <Project Path="packages/MessageClient/src/MessageClient.csproj" />
+    <Project Path="packages/Messages/Messages.csproj" />
   </Folder>
 </Solution>

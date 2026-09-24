@@ -1,4 +1,4 @@
-namespace ChannelService.Messaging;
+namespace MessageClient;
 
 // Bindes til sektionen "Messaging" i appsettings.
 public sealed class MessagingOptions

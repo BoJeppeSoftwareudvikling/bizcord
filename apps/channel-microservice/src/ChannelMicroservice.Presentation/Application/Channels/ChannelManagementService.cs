@@ -1,7 +1,8 @@
 using ChannelService.Application.Abstractions;
 using ChannelService.Domain;
 using ChannelService.Dtos.Channels;
-using ChannelService.Messaging;
+using MessageClient;
+using Messages;
 
 namespace ChannelService.Application.Channels;
 

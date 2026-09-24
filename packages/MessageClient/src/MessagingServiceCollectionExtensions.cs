@@ -1,7 +1,9 @@
 using EasyNetQ;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace ChannelService.Messaging;
+namespace MessageClient;
 
 // Samler al messaging-registrering i ét kald fra Program.cs.
 public static class MessagingServiceCollectionExtensions

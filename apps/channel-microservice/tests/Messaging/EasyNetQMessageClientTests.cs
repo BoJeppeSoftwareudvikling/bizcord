@@ -1,4 +1,4 @@
-using ChannelService.Messaging;
+using MessageClient;
 using EasyNetQ;
 using EasyNetQ.Internals;
 using EasyNetQ.Topology;

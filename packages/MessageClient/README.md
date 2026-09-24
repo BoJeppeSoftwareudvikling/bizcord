@@ -1,6 +1,8 @@
-# Messaging
+# MessageClient
 
-Denne mappe indkapsler kommunikationen med RabbitMQ, så resten af Channel Service ikke behøver at afhænge direkte af EasyNetQ.
+Denne pakke indkapsler kommunikationen med RabbitMQ, så resten af Channel Service ikke behøver at afhænge direkte af EasyNetQ.
+
+Event-kontrakterne ligger i `packages/Messages`. Denne pakke kender ikke de konkrete beskeder, fordi `IMessageClient` er generisk.
 
 ## Filer
 
