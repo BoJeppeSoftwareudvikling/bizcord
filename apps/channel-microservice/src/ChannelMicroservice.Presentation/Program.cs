@@ -1,6 +1,6 @@
 using ChannelService.Application;
 using ChannelService.Infrastructure;
-using ChannelService.Messaging;
+using MessageClient;
 
 var builder = WebApplication.CreateBuilder(args);
 

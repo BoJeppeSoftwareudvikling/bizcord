@@ -1,6 +1,6 @@
 using EasyNetQ;
 
-namespace ChannelService.Messaging;
+namespace MessageClient;
 
 // Oversætter IMessageClient-kald til EasyNetQ's Pub/Sub-API.
 public sealed class EasyNetQMessageClient(IBus bus) : IMessageClient

@@ -7,12 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EasyNetQ" Version="7.8.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\dtos\ChannelService.Dtos.csproj" />
+    <ProjectReference Include="..\..\dtos\ChannelService.Dtos.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\MessageClient\src\MessageClient.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\Messages\Messages.csproj" />
   </ItemGroup>
 
 </Project>

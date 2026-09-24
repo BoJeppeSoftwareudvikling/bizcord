@@ -20,7 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\WebAPI.csproj" />
+    <ProjectReference Include="..\src\ChannelMicroservice.Presentation\ChannelMicroservice.Presentation.csproj" />
+    <ProjectReference Include="..\..\..\packages\MessageClient\src\MessageClient.csproj" />
   </ItemGroup>
 
 </Project>

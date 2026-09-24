@@ -1,4 +1,4 @@
-using ChannelService.Messaging;
+using MessageClient;
 using EasyNetQ;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
