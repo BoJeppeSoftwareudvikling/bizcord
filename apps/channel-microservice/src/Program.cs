@@ -1,15 +1,18 @@
+using ChannelService.Application;
+using ChannelService.Infrastructure;
 using ChannelService.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddControllers();
+
 builder.Services.AddMessageClient(builder.Configuration);
+builder.Services.AddChannelApplication();
+builder.Services.AddChannelInfrastructure();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -20,8 +23,9 @@ app.UseHttpsRedirection();
 app.MapGet("/health", () => Results.Ok(new
 {
     Status = "Healthy",
-    Service = "Bizcord microservice"
+    Service = "Channel Service"
 }));
 
-app.Run();
+app.MapControllers();
 
+app.Run();

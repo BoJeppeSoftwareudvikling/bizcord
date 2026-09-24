@@ -1,6 +1,9 @@
 <Solution>
   <Folder Name="/apps/" />
   <Folder Name="/apps/channel-microservice/" />
+  <Folder Name="/apps/channel-microservice/dtos/">
+    <Project Path="apps/channel-microservice/dtos/ChannelService.Dtos.csproj" />
+  </Folder>
   <Folder Name="/apps/channel-microservice/src/">
     <Project Path="apps/channel-microservice/src/WebAPI.csproj" />
   </Folder>
