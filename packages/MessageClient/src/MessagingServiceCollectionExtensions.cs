@@ -33,7 +33,9 @@ public static class MessagingServiceCollectionExtensions
                 .GetRequiredService<IOptions<MessagingOptions>>()
                 .Value;
 
-            return RabbitHutch.CreateBus(options.ConnectionString);
+            return RabbitHutch.CreateBus(
+                options.ConnectionString,
+                serviceRegister => serviceRegister.EnableSystemTextJson());
         });
 
         // Applikationskode efterspørger interfacet og får EasyNetQ-adapteren.
