@@ -3,3 +3,7 @@
 **/tests/
 **/.vs/
 **/*.user
+.git
+.env
+.env.*
+!.env.example

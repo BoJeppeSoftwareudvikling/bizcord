@@ -1,7 +1,35 @@
 services:
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: bizcord-rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", ping]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+
+  channel-microservice:
+    build:
+      context: .
+      dockerfile: apps/channel-microservice/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8000:8080"
+    environment:
+      ASPNETCORE_HTTP_PORTS: "8080"
+      ASPNETCORE_ENVIRONMENT: Development
+      Messaging__ConnectionString: "host=rabbitmq;username=${RABBITMQ_USER};password=${RABBITMQ_PASSWORD}"
+
+volumes:
+  rabbitmq-data:
