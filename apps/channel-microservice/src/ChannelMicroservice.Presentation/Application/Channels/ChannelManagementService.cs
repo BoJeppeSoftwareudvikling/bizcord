@@ -44,6 +44,41 @@ public sealed class ChannelManagementService(
         return ToDto(channel);
     }
 
+    public async Task RecordMessageActivityAsync(
+        Guid channelId,
+        Guid messageId,
+        DateTimeOffset activityAt,
+        CancellationToken cancellationToken = default)
+    {
+        ValidateId(channelId);
+        ValidateMessageId(messageId);
+        ValidateActivityAt(activityAt);
+
+        var channel = await _channelRepository.GetAsync(
+            channelId,
+            cancellationToken);
+
+        if (channel is null)
+        {
+            throw new InvalidOperationException(
+                $"Channel '{channelId}' does not exist.");
+        }
+
+        channel.LastMessageId = messageId;
+        channel.LastActivityAt = activityAt;
+
+        await _channelRepository.SaveAsync(
+            channel,
+            cancellationToken);
+
+        await _messageClient.PublishAsync(
+            new ChannelActivityRecordedEventDto(
+                messageId,
+                channelId,
+                activityAt),
+            cancellationToken);
+    }
+
     public async Task<ChannelDto?> GetAsync(
         Guid id,
         CancellationToken cancellationToken = default)
@@ -152,6 +187,30 @@ public sealed class ChannelManagementService(
         }
 
         return trimmed;
+    }
+
+    private static void ValidateMessageId(Guid messageId)
+    {
+        if (messageId == Guid.Empty)
+        {
+            throw new ChannelValidationException(
+                "Message id cannot be empty.");
+        }
+    }
+
+    private static void ValidateActivityAt(DateTimeOffset activityAt)
+    {
+        if (activityAt == default)
+        {
+            throw new ChannelValidationException(
+                "Activity time must be set.");
+        }
+
+        if (activityAt.Offset != TimeSpan.Zero)
+        {
+            throw new ChannelValidationException(
+                "Activity time must be UTC.");
+        }
     }
 
     private static void ValidateId(Guid id)
