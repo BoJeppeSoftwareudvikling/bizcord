@@ -8,6 +8,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddChannelApplication(this IServiceCollection services)
     {
         services.AddScoped<ChannelManagementService>();
+        services.AddSingleton<MessagePostedHandler>();
+        services.AddHostedService<MessagePostedSubscriber>();
 
         return services;
     }

@@ -169,6 +169,8 @@ public sealed class ChannelManagementService(
             channel.Name,
             channel.Description,
             channel.CreatedAt,
-            channel.UpdatedAt);
+            channel.UpdatedAt,
+            channel.LastActivityAt,
+            channel.LastMessageId);
     }
 }

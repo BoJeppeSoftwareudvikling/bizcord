@@ -15,3 +15,8 @@ public sealed record ChannelUpdatedEventDto(
 public sealed record ChannelDeletedEventDto(
     Guid ChannelId,
     DateTimeOffset DeletedAt);
+
+public sealed record ChannelActivityRecordedEvent(
+    Guid MessageId,
+    Guid ChannelId,
+    DateTimeOffset LastActivityAt);
