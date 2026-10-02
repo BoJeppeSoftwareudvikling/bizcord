@@ -5,7 +5,9 @@ public sealed record ChannelDto(
     string Name,
     string? Description,
     DateTimeOffset CreatedAt,
-    DateTimeOffset? UpdatedAt);
+    DateTimeOffset? UpdatedAt,
+    DateTimeOffset? LastActivityAt,
+    Guid? LastMessageId);
 
 public sealed record CreateChannelDto(
     string? Name,
