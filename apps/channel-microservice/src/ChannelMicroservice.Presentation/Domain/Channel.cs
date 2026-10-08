@@ -12,5 +12,9 @@ public sealed class Channel
 
     public DateTimeOffset? UpdatedAt { get; set; }
 
+    public Guid? LastMessageId { get; set; }
+
+    public DateTimeOffset? LastActivityAt { get; set; }
+
     public List<ChannelMember> Members { get; set; } = new();
 }

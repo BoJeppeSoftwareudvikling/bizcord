@@ -2,18 +2,20 @@ using MessageClient;
 using EasyNetQ;
 using EasyNetQ.Internals;
 using EasyNetQ.Topology;
-using NSubstitute;
+using Moq;
 
 namespace ChannelService.Tests.Messaging;
 
 public sealed class EasyNetQMessageClientTests
 {
-    private readonly IBus _bus = Substitute.For<IBus>();
-    private readonly IPubSub _pubSub = Substitute.For<IPubSub>();
+    private readonly Mock<IBus> _bus = new();
+    private readonly Mock<IPubSub> _pubSub = new();
 
     public EasyNetQMessageClientTests()
     {
-        _bus.PubSub.Returns(_pubSub);
+        _bus
+            .SetupGet(candidate => candidate.PubSub)
+            .Returns(_pubSub.Object);
     }
 
     [Fact]
@@ -21,14 +23,16 @@ public sealed class EasyNetQMessageClientTests
     {
         var message = new TestMessage("Hello");
         using var cancellationTokenSource = new CancellationTokenSource();
-        var client = new EasyNetQMessageClient(_bus);
+        var client = new EasyNetQMessageClient(_bus.Object);
 
         await client.PublishAsync(message, cancellationTokenSource.Token);
 
-        await _pubSub.Received(1).PublishAsync(
-            message,
-            Arg.Any<Action<IPublishConfiguration>>(),
-            cancellationTokenSource.Token);
+        _pubSub.Verify(
+            candidate => candidate.PublishAsync(
+                message,
+                It.IsAny<Action<IPublishConfiguration>>(),
+                cancellationTokenSource.Token),
+            Times.Once);
     }
 
     [Fact]
@@ -41,13 +45,13 @@ public sealed class EasyNetQMessageClientTests
         var awaitableSubscription = new AwaitableDisposable<SubscriptionResult>(
             Task.FromResult(subscription));
         _pubSub
-            .SubscribeAsync<TestMessage>(
+            .Setup(candidate => candidate.SubscribeAsync<TestMessage>(
                 subscriptionId,
-                Arg.Any<Func<TestMessage, CancellationToken, Task>>(),
-                Arg.Any<Action<ISubscriptionConfiguration>>(),
-                cancellationTokenSource.Token)
+                It.IsAny<Func<TestMessage, CancellationToken, Task>>(),
+                It.IsAny<Action<ISubscriptionConfiguration>>(),
+                cancellationTokenSource.Token))
             .Returns(awaitableSubscription);
-        var client = new EasyNetQMessageClient(_bus);
+        var client = new EasyNetQMessageClient(_bus.Object);
 
         var result = await client.SubscribeAsync(
             subscriptionId,
@@ -55,17 +59,20 @@ public sealed class EasyNetQMessageClientTests
             cancellationTokenSource.Token);
 
         Assert.Equal(subscription, result);
-        _ = _pubSub.Received(1).SubscribeAsync<TestMessage>(
-            subscriptionId,
-            Arg.Is<Func<TestMessage, CancellationToken, Task>>(candidate => candidate == handler),
-            Arg.Any<Action<ISubscriptionConfiguration>>(),
-            cancellationTokenSource.Token);
+        _pubSub.Verify(
+            candidate => candidate.SubscribeAsync<TestMessage>(
+                subscriptionId,
+                It.Is<Func<TestMessage, CancellationToken, Task>>(
+                    candidateHandler => candidateHandler == handler),
+                It.IsAny<Action<ISubscriptionConfiguration>>(),
+                cancellationTokenSource.Token),
+            Times.Once);
     }
 
     [Fact]
     public async Task PublishAsync_RejectsNullMessage()
     {
-        var client = new EasyNetQMessageClient(_bus);
+        var client = new EasyNetQMessageClient(_bus.Object);
 
         await Assert.ThrowsAsync<ArgumentNullException>(
             () => client.PublishAsync<TestMessage>(null!));
@@ -76,7 +83,7 @@ public sealed class EasyNetQMessageClientTests
     [InlineData("  ")]
     public async Task SubscribeAsync_RejectsInvalidSubscriptionId(string subscriptionId)
     {
-        var client = new EasyNetQMessageClient(_bus);
+        var client = new EasyNetQMessageClient(_bus.Object);
 
         await Assert.ThrowsAsync<ArgumentException>(
             () => client.SubscribeAsync<TestMessage>(
@@ -99,7 +106,10 @@ public sealed class EasyNetQMessageClientTests
             true,
             new Dictionary<string, object>());
 
-        return new SubscriptionResult(exchange, queue, Substitute.For<IDisposable>());
+        return new SubscriptionResult(
+            exchange,
+            queue,
+            new Mock<IDisposable>().Object);
     }
 
     private sealed record TestMessage(string Text);
