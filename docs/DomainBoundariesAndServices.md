@@ -24,8 +24,9 @@
 
 - `Message Service` asks `Channel Service` whether a user can post in a channel.
 - `Message Service` stores the message and publishes `MessageCreated`.
+- `Event Broker` asynchronously carries domain events between services.
 - `Engagement Service` listens for `MessageCreated` and handles mentions or notifications.
 
 ## Container diagram
 
-![Bizcord backend container diagram](<../../img/Container diagram Jeppe.png>)
+![Bizcord backend container diagram](<../img/Bizcord Backend Container Diagram.png>)
