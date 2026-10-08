@@ -1,47 +1,32 @@
 # Bizcord
 
-## Semester Project
+Bizcord is a semester project for an enterprise communication platform. Our chosen domain is channel management, implemented by the `Channel Service`.
 
-This repository contains the semester project for the course. Throughout the semester, each lecture introduces a new topic that is applied directly to the project.
+## Links
 
-## Project Description
+- [Project description](docs/ProjectDescription.md)
+- [Domain boundaries and container diagram](docs/DomainBoundariesAndServices.md)
+- [Channel Service implementation](apps/channel-microservice)
 
-Bizcord is a real-time enterprise communication platform inspired by Discord. The focus of this project is the backend of the application.
+## Start
 
-## Scenario
+Create a `.env` file in the repository root:
 
-The system is designed to let users communicate with each other in real time through an enterprise messaging platform.
+```env
+RABBITMQ_USER=guest
+RABBITMQ_PASSWORD=guest
+```
 
-## Scope
+Then start the service and RabbitMQ:
 
-The project may include work within areas such as:
+```bash
+docker compose up --build
+```
 
-- Real-time communication
-- Channel management
-- User profiles
-- Engagement features such as notifications and reactions
+The API and Swagger UI are available at <http://localhost:8000> and <http://localhost:8000/swagger>. RabbitMQ management is available at <http://localhost:15672>.
 
-## How It Works
+## Test
 
-Each team works on a subset of the overall system by selecting a bounded context, also called a functional domain. For example, a team may choose to work on channel management.
-
-This means each team contributes to a single microservice throughout the semester while still being part of a larger shared system.
-
-To reflect a more realistic development process, the project is structured as a monorepo. That means multiple services live in the same repository, even though each team focuses on only one bounded context.
-
-## Expectations
-
-The course project is intended to simulate work on a real software project. This includes:
-
-- Using Git correctly
-- Giving and receiving feedback
-- Raising and handling issues
-
-## Rules And Limitations
-
-- Each team works on a single microservice
-- Any bounded context may be chosen
-- Multiple teams may work on the same bounded context
-- Teams should choose a domain they find interesting
-- Contributions are made to a shared GitHub repository throughout the course
-- Teams may have no more than 4 people
+```bash
+dotnet test
+```
