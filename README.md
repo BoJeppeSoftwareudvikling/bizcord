@@ -6,6 +6,7 @@ Bizcord is a semester project for an enterprise communication platform. Our chos
 
 - [Project description](docs/ProjectDescription.md)
 - [Domain boundaries and container diagram](docs/DomainBoundariesAndServices.md)
+- [Week 43: API gateway, routing, and authorization](docs/Week43ApiGatewayAndAuthorization.md)
 - [Channel Service implementation](apps/channel-microservice)
 
 ## Start

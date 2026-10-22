@@ -16,8 +16,17 @@ dotnet test tests
 
 ## Docker
 
-Build from this folder:
+The Dockerfile references projects and packages outside this service directory, so
+the build context must be the Bizcord repository root.
+
+From the repository root, either start the complete local stack:
 
 ```bash
-docker build -t channel-microservice .
+docker compose up --build
+```
+
+Or build only the Channel Service image:
+
+```bash
+docker build -f apps/channel-microservice/Dockerfile -t channel-microservice .
 ```
