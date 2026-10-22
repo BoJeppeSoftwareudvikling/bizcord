@@ -15,6 +15,10 @@ public sealed record UpdateChannelDto(
     string? Name,
     string? Description);
 
+public sealed record CurrentUserDto(
+    string UserId,
+    string Role);
+
 public sealed record ChannelMemberDto(
     Guid ChannelId,
     Guid UserId,

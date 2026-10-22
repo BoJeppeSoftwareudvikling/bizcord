@@ -42,6 +42,23 @@ public sealed class ChannelsController(ChannelManagementService channelService) 
         return Ok(channels);
     }
 
+    [HttpGet("me")]
+    public ActionResult<CurrentUserDto> GetCurrentUser(
+        [FromHeader(Name = "X-UserId")] string? userId,
+        [FromHeader(Name = "X-Role")] string? role)
+    {
+        if (string.IsNullOrWhiteSpace(userId) ||
+            string.IsNullOrWhiteSpace(role))
+        {
+            return BadRequest(new
+            {
+                error = "Forwarded user identity is required."
+            });
+        }
+
+        return Ok(new CurrentUserDto(userId, role));
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ChannelDto>> GetChannel(
         Guid id,
