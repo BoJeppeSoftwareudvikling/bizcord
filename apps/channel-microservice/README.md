@@ -2,6 +2,11 @@
 
 ASP.NET Core Web API for Bizcord channel management.
 
+## Course tasks
+
+- [Week 44, task 01: Identify failure points](../../docs/FAILURE_POINTS.md)
+- [Week 44, task 02: Implement reliability measures](../../docs/Week44ReliabilityMeasures.md)
+
 ## Run
 
 ```bash

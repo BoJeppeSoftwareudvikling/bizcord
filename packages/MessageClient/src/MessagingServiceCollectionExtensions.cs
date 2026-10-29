@@ -24,7 +24,14 @@ public static class MessagingServiceCollectionExtensions
                 $"Configuration value '{MessagingOptions.SectionName}:{nameof(MessagingOptions.ConnectionString)}' is required.");
         }
 
-        services.Configure<MessagingOptions>(section);
+        services.AddOptions<MessagingOptions>()
+            .Bind(section)
+            .Validate(options => options.PublishTimeout > TimeSpan.Zero &&
+                options.PublishTimeout <= TimeSpan.FromMinutes(5),
+                "Messaging:PublishTimeout must be positive and at most five minutes.")
+            .Validate(options => options.MaxConcurrentPublishes is >= 1 and <= 1024,
+                "Messaging:MaxConcurrentPublishes must be between 1 and 1024.")
+            .ValidateOnStart();
 
         // Singleton sikrer, at hele applikationen genbruger samme bus/forbindelse.
         services.AddSingleton<IBus>(serviceProvider =>
@@ -39,7 +46,10 @@ public static class MessagingServiceCollectionExtensions
         });
 
         // Applikationskode efterspørger interfacet og får EasyNetQ-adapteren.
-        services.AddSingleton<IMessageClient, EasyNetQMessageClient>();
+        services.AddSingleton<EasyNetQMessageClient>();
+        services.AddSingleton<IMessageClient>(provider => new BoundedMessageClient(
+            provider.GetRequiredService<EasyNetQMessageClient>(),
+            provider.GetRequiredService<IOptions<MessagingOptions>>()));
 
         return services;
     }

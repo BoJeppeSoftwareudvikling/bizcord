@@ -64,6 +64,11 @@ public sealed class ChannelManagementService(
                 $"Channel '{channelId}' does not exist.");
         }
 
+        if (channel.LastActivityAt > activityAt)
+        {
+            return;
+        }
+
         channel.LastMessageId = messageId;
         channel.LastActivityAt = activityAt;
 
@@ -114,8 +119,10 @@ public sealed class ChannelManagementService(
             return null;
         }
 
-        channel.Name = NormalizeName(command.Name);
-        channel.Description = NormalizeDescription(command.Description);
+        var name = NormalizeName(command.Name);
+        var description = NormalizeDescription(command.Description);
+        channel.Name = name;
+        channel.Description = description;
         channel.UpdatedAt = DateTimeOffset.UtcNow;
 
         await _channelRepository.SaveAsync(channel, cancellationToken);
