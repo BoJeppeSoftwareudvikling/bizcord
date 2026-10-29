@@ -56,6 +56,7 @@ public sealed class MessagePostedFlowTests : IAsyncLifetime
         {
             var messageClient = host.Services
                 .GetRequiredService<IMessageClient>();
+            Assert.IsType<BoundedMessageClient>(messageClient);
 
             var capturedEvent =
                 new TaskCompletionSource<ChannelActivityRecordedEventDto>(
