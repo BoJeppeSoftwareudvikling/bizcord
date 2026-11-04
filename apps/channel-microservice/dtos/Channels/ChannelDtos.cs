@@ -19,6 +19,10 @@ public sealed record CurrentUserDto(
     string UserId,
     string Role);
 
+public sealed record ChannelExistenceDto(
+    Guid ChannelId,
+    bool Exists);
+
 public sealed record ChannelMemberDto(
     Guid ChannelId,
     Guid UserId,

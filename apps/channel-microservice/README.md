@@ -6,6 +6,7 @@ ASP.NET Core Web API for Bizcord channel management.
 
 - [Week 44, task 01: Identify failure points](../../docs/FAILURE_POINTS.md)
 - [Week 44, task 02: Implement reliability measures](../../docs/Week44ReliabilityMeasures.md)
+- [Week 45, task 01: East-west security](../../docs/Week45EastWestSecurity.md)
 
 ## Run
 
@@ -35,3 +36,7 @@ Or build only the Channel Service image:
 ```bash
 docker build -f apps/channel-microservice/Dockerfile -t channel-microservice .
 ```
+
+Compose does not publish the service on a host port. Client traffic enters through
+the separate API gateway on port `8080`; gateway-to-service traffic uses the
+internal `bizcord-backend` network and `channel-microservice:8080`.

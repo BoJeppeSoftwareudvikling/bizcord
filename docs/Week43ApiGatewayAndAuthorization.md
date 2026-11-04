@@ -3,6 +3,11 @@
 This note records the work completed for the System Integration week 43 tasks. It
 is intended as source material for later project and exam documentation.
 
+> **Historical setup:** Week 43 used the host mapping `localhost:8000` and
+> `host.docker.internal`. Week 45 removed that public Channel Service port and
+> connected the gateway directly to `channel-microservice:8080` on the private
+> `bizcord-backend` network. See `Week45EastWestSecurity.md` for the current setup.
+
 ## Scope and repository setup
 
 The Channel Service remains in the Bizcord repository. The Ocelot API gateway is

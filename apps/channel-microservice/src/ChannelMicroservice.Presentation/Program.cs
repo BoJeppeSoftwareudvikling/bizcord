@@ -1,5 +1,6 @@
 using ChannelService;
 using ChannelService.Application;
+using ChannelService.Authentication;
 using ChannelService.Infrastructure;
 using MessageClient;
 
@@ -10,6 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ReliabilityExceptionHandler>();
 
+builder.Services.AddServiceAuthentication(builder.Configuration);
 builder.Services.AddMessageClient(builder.Configuration);
 builder.Services.AddChannelApplication();
 builder.Services.AddChannelInfrastructure();
@@ -24,6 +26,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new
 {
