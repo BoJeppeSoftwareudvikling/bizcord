@@ -2,8 +2,8 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
@@ -17,6 +17,26 @@ services:
       - rabbitmq-data:/var/lib/rabbitmq
     networks:
       - backend
+      - default
+
+  vault:
+    image: hashicorp/vault:1.21.0
+    ports:
+      - "127.0.0.1:8200:8200"
+    volumes:
+      - ./vault/config.hcl:/vault/config/config.hcl:ro
+      - vault-data:/vault/file
+    command: server
+    environment:
+      VAULT_ADDR: http://127.0.0.1:8200
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+      - default
 
   channel-microservice:
     build:
@@ -25,16 +45,19 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      vault:
+        condition: service_started
     environment:
       ASPNETCORE_HTTP_PORTS: "8080"
       ASPNETCORE_ENVIRONMENT: Development
-      Messaging__ConnectionString: "host=rabbitmq;username=${RABBITMQ_USER};password=${RABBITMQ_PASSWORD}"
-      Authentication__SigningKey: "${JWT_SIGNING_KEY:?Set JWT_SIGNING_KEY in .env}"
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: "${VAULT_TOKEN:-}"
     networks:
       - backend
 
 volumes:
   rabbitmq-data:
+  vault-data:
 
 networks:
   backend:

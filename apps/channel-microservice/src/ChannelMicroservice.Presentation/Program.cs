@@ -2,9 +2,12 @@ using ChannelService;
 using ChannelService.Application;
 using ChannelService.Authentication;
 using ChannelService.Infrastructure;
+using ChannelService.Infrastructure.Secrets;
 using MessageClient;
 
 var builder = WebApplication.CreateBuilder(args);
+
+await builder.Configuration.AddSecretsFromVaultAsync();
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();

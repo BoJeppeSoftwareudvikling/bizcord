@@ -44,10 +44,10 @@ The local teaching faucet issues tokens with:
 - service authorization in `role`
 - a one-hour lifetime
 
-The symmetric signing key is no longer committed in the gateway's Development
-settings. Both Compose stacks receive the same `JWT_SIGNING_KEY` at runtime. This
-is an improvement over a committed key, but it is still the bootstrap secret for
-local teaching. Week 45 task 02 covers central secret management with Vault.
+The symmetric signing key is no longer committed or copied into both Compose
+stacks. Week 45 task 02 stores one shared key at `secret/shared/jwt` in Vault.
+The gateway and Channel Service read it with different scoped application tokens,
+so the key remains shared while the Vault identities and policies remain separate.
 
 ## Network boundary
 
@@ -69,7 +69,7 @@ not treated as identity. The JWT policy is still enforced inside Channel Service
 ### Bizcord
 
 - `docker-compose.yml` — owns the internal network, removes the Channel Service
-  host port and supplies the runtime signing key.
+  host port and supplies the scoped Vault token at runtime.
 - `apps/channel-microservice/src/ChannelMicroservice.Presentation/Authentication/ServiceAuthenticationExtensions.cs`
   — owns JWT validation and the `InternalService` authorization policy.
 - `apps/channel-microservice/src/ChannelMicroservice.Presentation/Controllers/InternalChannelsController.cs`
@@ -87,8 +87,8 @@ not treated as identity. The JWT policy is still enforced inside Channel Service
   requires `role: internal-service` on the internal route.
 - `src/Application/Services/JwtTokenService.cs` — adds issuer and audience to
   locally issued teaching tokens.
-- `docker-compose.yml` — joins `bizcord-backend` and receives the signing key at
-  runtime.
+- `docker-compose.yml` — joins `bizcord-backend` and receives a gateway-specific
+  Vault token at runtime.
 
 ## Manual verification
 
@@ -96,7 +96,11 @@ The following flow verifies the public gateway path, the downstream service
 policy and the network boundary. It uses Python only to extract values from JSON,
 so `jq` is not required.
 
-### 1. Start both Compose stacks
+### 1. Bootstrap Vault and start both Compose stacks
+
+First complete the setup in [Week45VaultIntegration.md](Week45VaultIntegration.md).
+The two repositories require different one-hour Vault tokens and Vault must be
+unsealed before either application starts.
 
 Start Bizcord first because it owns the shared `bizcord-backend` network:
 
@@ -309,4 +313,5 @@ RabbitMQ data was preserved.
 - Transport on the internal Docker network is HTTP, not mTLS.
 - The endpoint proves service identity and channel existence; it does not yet
   implement user membership or `CanPostMessages` evaluation.
-- Rotation and central storage of the runtime key belong to the Vault task.
+- The Vault task adds central storage but still uses a startup-loaded static key;
+  automatic rotation and reload remain future work.
