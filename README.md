@@ -12,6 +12,8 @@ Bizcord is a semester project for an enterprise communication platform. Our chos
 - [Week 45, task 01: East-west security](docs/Week45EastWestSecurity.md)
 - [Week 45, task 02: HashiCorp Vault integration](docs/Week45VaultIntegration.md)
 - [Week 46, tasks 01 and 02: Attachment upload saga and demo](docs/Week46AttachmentSaga.md)
+- [Week 47, task 01: Fluentd logging sidecar](docs/Week47LoggingSidecar.md)
+- [Week 47, task 02: GraphQL presentation layer](docs/Week47GraphQLPresentation.md)
 - [Channel Service implementation](apps/channel-microservice)
 
 ## Start
@@ -43,6 +45,29 @@ at <http://localhost:15672>.
 
 Start Bizcord before the gateway because this Compose stack owns the external
 Docker network used by both repositories.
+
+## Logs
+
+Channel Service writes to stdout using ASP.NET Core's default console logger.
+Docker forwards its output to the Fluentd companion, which prints collected
+records to its own console:
+
+```bash
+docker compose logs -f fluentd
+```
+
+See [the logging guide](docs/Week47LoggingSidecar.md) for verification, transport
+choices and delivery limits.
+
+## GraphQL
+
+POST GraphQL queries and mutations to `http://localhost:8080/graphql` through the
+API gateway with a bearer token. `channels` and `channel(id)` require
+`channel.read`; `createChannel(input)` requires `channel.write`. REST remains
+available. Rebuild the gateway too, so its new route is loaded.
+
+See [the GraphQL guide](docs/Week47GraphQLPresentation.md) for runnable requests,
+architecture decisions and verification.
 
 ## Test
 

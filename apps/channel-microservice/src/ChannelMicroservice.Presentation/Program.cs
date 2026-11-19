@@ -1,6 +1,7 @@
 using ChannelService;
 using ChannelService.Application;
 using ChannelService.Authentication;
+using ChannelService.GraphQL;
 using ChannelService.Infrastructure;
 using ChannelService.Infrastructure.Secrets;
 using MessageClient;
@@ -18,6 +19,7 @@ builder.Services.AddServiceAuthentication(builder.Configuration);
 builder.Services.AddMessageClient(builder.Configuration);
 builder.Services.AddChannelApplication();
 builder.Services.AddChannelInfrastructure();
+builder.Services.AddChannelGraphQL();
 
 var app = builder.Build();
 app.UseExceptionHandler();
@@ -39,5 +41,6 @@ app.MapGet("/health", () => Results.Ok(new
 }));
 
 app.MapControllers();
+app.MapGraphQL("/graphql").RequireAuthorization();
 
 app.Run();
