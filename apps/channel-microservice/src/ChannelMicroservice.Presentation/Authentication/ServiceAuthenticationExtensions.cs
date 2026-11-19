@@ -6,6 +6,8 @@ namespace ChannelService.Authentication;
 
 public static class ServiceAuthorizationPolicies
 {
+    public const string ChannelRead = "ChannelRead";
+    public const string ChannelWrite = "ChannelWrite";
     public const string InternalService = "InternalService";
 }
 
@@ -60,6 +62,12 @@ public static class ServiceAuthenticationExtensions
 
         services.AddAuthorization(options =>
         {
+            options.AddPolicy(ServiceAuthorizationPolicies.ChannelRead, policy => policy
+                .RequireAuthenticatedUser()
+                .RequireAssertion(context => HasScope(context.User, "channel.read")));
+            options.AddPolicy(ServiceAuthorizationPolicies.ChannelWrite, policy => policy
+                .RequireAuthenticatedUser()
+                .RequireAssertion(context => HasScope(context.User, "channel.write")));
             options.AddPolicy(
                 ServiceAuthorizationPolicies.InternalService,
                 policy => policy
@@ -69,6 +77,11 @@ public static class ServiceAuthenticationExtensions
 
         return services;
     }
+
+    private static bool HasScope(System.Security.Claims.ClaimsPrincipal user, string requiredScope) =>
+        user.FindAll("scope")
+            .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .Contains(requiredScope, StringComparer.Ordinal);
 
     private static void Validate(ServiceAuthenticationOptions settings)
     {
