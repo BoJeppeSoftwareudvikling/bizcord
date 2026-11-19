@@ -38,15 +38,41 @@ services:
       - backend
       - default
 
+  fluentd:
+    image: fluent/fluentd:v1.20.1-debian-1.1
+    ports:
+      # The logging driver connects from the Docker daemon, not the app network.
+      - "127.0.0.1:24224:24224"
+    volumes:
+      - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf:ro
+    logging:
+      # Never forward the collector's own output back into itself.
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   channel-microservice:
     build:
       context: .
       dockerfile: apps/channel-microservice/Dockerfile
     depends_on:
+      fluentd:
+        condition: service_started
       rabbitmq:
         condition: service_healthy
       vault:
         condition: service_started
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "127.0.0.1:24224"
+        tag: bizcord.channel
+        fluentd-async: "true"
+        fluentd-buffer-limit: "8192"
+        fluentd-write-timeout: "1s"
+        mode: non-blocking
+        max-buffer-size: "1m"
     environment:
       ASPNETCORE_HTTP_PORTS: "8080"
       ASPNETCORE_ENVIRONMENT: Development
