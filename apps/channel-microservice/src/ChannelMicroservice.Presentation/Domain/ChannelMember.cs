@@ -14,5 +14,7 @@ public sealed class ChannelMember
         CanManageChannel: false,
         CanManageMembers: false);
 
+    public int UnreadAttachments { get; set; }
+
     public DateTimeOffset JoinedAt { get; set; }
 }

@@ -12,6 +12,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<MessagePostedHandler>();
         services.AddHostedService<MessagePostedSubscription>();
 
+        services.AddHostedService<AttachmentActivitySubscription>();
+
         return services;
     }
 }

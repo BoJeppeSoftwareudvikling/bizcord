@@ -1,5 +1,7 @@
 <Solution>
-  <Folder Name="/apps/" />
+  <Folder Name="/apps/">
+    <Project Path="apps/upload-workflow/UploadWorkflow.csproj" />
+  </Folder>
   <Folder Name="/apps/channel-microservice/" />
   <Folder Name="/apps/channel-microservice/dtos/">
     <Project Path="apps/channel-microservice/dtos/ChannelService.Dtos.csproj" />

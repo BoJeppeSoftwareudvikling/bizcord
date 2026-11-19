@@ -64,17 +64,20 @@ public sealed class ChannelManagementService(
                 $"Channel '{channelId}' does not exist.");
         }
 
-        if (channel.LastActivityAt > activityAt)
+        if ((channel.LastOrdinaryActivityAt ?? (channel.Attachments.Count == 0 ? channel.LastActivityAt : null)) > activityAt)
         {
             return;
         }
 
-        channel.LastMessageId = messageId;
-        channel.LastActivityAt = activityAt;
+        channel.LastOrdinaryMessageId = messageId;
+        channel.LastOrdinaryActivityAt = activityAt;
+        channel.RefreshLastActivity();
 
         await _channelRepository.SaveAsync(
             channel,
             cancellationToken);
+
+        if (channel.LastMessageId != messageId) return;
 
         await _messageClient.PublishAsync(
             new ChannelActivityRecordedEventDto(
