@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Testcontainers.RabbitMq;
+using UploadWorkflow;
 
 namespace ChannelService.Tests.Integration;
 
@@ -105,6 +106,51 @@ public sealed class MessagePostedFlowTests : IAsyncLifetime
         finally
         {
             await host.StopAsync();
+        }
+    }
+
+    [Theory]
+    [InlineData(1024, UploadStep.Completed)]
+    [InlineData(1_048_577, UploadStep.Rejected)]
+    [Trait("Category", "Integration")]
+    public async Task AttachmentUpload_ReachesExpectedOutcomeOverRabbitMq(long bytes, UploadStep expected)
+    {
+        using var host = CreateChannelServiceHost();
+        var channel = new Channel { Id = Guid.NewGuid(), Name = "general" };
+        channel.Members.Add(new ChannelMember { UserId = Guid.NewGuid(), ChannelId = channel.Id });
+        var repository = host.Services.GetRequiredService<IChannelRepository>();
+        await repository.AddAsync(channel);
+        var directory = Directory.CreateTempSubdirectory("bizcord-upload");
+        await host.StartAsync();
+        try
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            var ct = timeout.Token;
+            var bus = host.Services.GetRequiredService<IMessageClient>();
+            var coordinator = new UploadCoordinator(Path.Combine(directory.FullName, "saga.db"), bus);
+            var participants = new SimulatedParticipants(directory.FullName, bus);
+            using var files = await bus.SubscribeAsync<FileCommand>("test-files", participants.Handle, ct);
+            using var messages = await bus.SubscribeAsync<AttachmentMessageCommand>("test-messages", participants.Handle, ct);
+            using var quota = await bus.SubscribeAsync<QuotaCommand>("test-quota", participants.Handle, ct);
+            using var starts = await bus.SubscribeAsync<StartUpload>("test-start", coordinator.Start, ct);
+            using var results = await bus.SubscribeAsync<UploadStepResult>("test-results", coordinator.Receive, ct);
+            var upload = new StartUpload(Guid.NewGuid(), Guid.NewGuid(), channel.Id, bytes, DateTimeOffset.UtcNow);
+            await bus.PublishAsync(upload, ct);
+            while (coordinator.Status(upload.SagaId)?.Step is not (UploadStep.Completed or UploadStep.Rejected))
+            {
+                await coordinator.DispatchPending(ct);
+                await Task.Delay(100, ct);
+            }
+
+            Assert.Equal(expected, coordinator.Status(upload.SagaId)!.Value.Step);
+            var stored = await repository.GetAsync(channel.Id, ct);
+            Assert.Equal(expected == UploadStep.Completed ? upload.SagaId : (Guid?)null, stored!.LastMessageId);
+            Assert.Equal(expected == UploadStep.Completed ? 1 : 0, stored.Members.Single().UnreadAttachments);
+        }
+        finally
+        {
+            await host.StopAsync();
+            directory.Delete(true);
         }
     }
 

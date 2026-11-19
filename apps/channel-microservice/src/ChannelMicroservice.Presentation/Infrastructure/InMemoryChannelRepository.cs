@@ -97,12 +97,17 @@ public sealed class InMemoryChannelRepository : IChannelRepository
         UpdatedAt = channel.UpdatedAt,
         LastMessageId = channel.LastMessageId,
         LastActivityAt = channel.LastActivityAt,
+        LastOrdinaryMessageId = channel.LastOrdinaryMessageId,
+        LastOrdinaryActivityAt = channel.LastOrdinaryActivityAt,
+        Attachments = channel.Attachments.ToDictionary(entry => entry.Key,
+            entry => entry.Value with { ReadersCharged = entry.Value.ReadersCharged.ToArray() }),
         Members = channel.Members.Select(member => new ChannelMember
         {
             ChannelId = member.ChannelId,
             UserId = member.UserId,
             Role = member.Role,
             Permissions = member.Permissions,
+            UnreadAttachments = member.UnreadAttachments,
             JoinedAt = member.JoinedAt
         }).ToList()
     };

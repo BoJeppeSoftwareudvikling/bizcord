@@ -11,6 +11,7 @@ Bizcord is a semester project for an enterprise communication platform. Our chos
 - [Week 44, task 02: Reliability measures and tests](docs/Week44ReliabilityMeasures.md)
 - [Week 45, task 01: East-west security](docs/Week45EastWestSecurity.md)
 - [Week 45, task 02: HashiCorp Vault integration](docs/Week45VaultIntegration.md)
+- [Week 46, tasks 01 and 02: Attachment upload saga and demo](docs/Week46AttachmentSaga.md)
 - [Channel Service implementation](apps/channel-microservice)
 
 ## Start

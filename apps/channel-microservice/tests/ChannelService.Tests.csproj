@@ -25,6 +25,7 @@
     <ProjectReference Include="..\src\ChannelMicroservice.Presentation\ChannelMicroservice.Presentation.csproj" />
     <ProjectReference Include="..\..\..\packages\MessageClient\src\MessageClient.csproj" />
     <ProjectReference Include="..\..\..\packages\Messages\Messages.csproj" />
+    <ProjectReference Include="..\..\upload-workflow\UploadWorkflow.csproj" />
   </ItemGroup>
 
 </Project>
