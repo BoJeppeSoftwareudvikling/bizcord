@@ -2,7 +2,10 @@
 
 Bizcord's Channel Service manages channels for an enterprise communication platform.
 
-**Reviewing week 48? Start with [Compulsory assignment #2](docs/Week48Review.md).** The guide maps all ten Moodle tasks to their design decisions, implementation and expected results.
+## Compulsory assignments
+
+- [Compulsory assignment 1 — Weeks 36–40](docs/CompulsoryAssignment1.md)
+- [Compulsory assignment 2 — Weeks 43–47](docs/Week48Review.md)
 
 ## Start
 
