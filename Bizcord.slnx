@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/apps/">
+    <Project Path="apps/api-gateway/src/api-gateway.csproj" />
     <Project Path="apps/upload-workflow/UploadWorkflow.csproj" />
   </Folder>
   <Folder Name="/apps/channel-microservice/" />

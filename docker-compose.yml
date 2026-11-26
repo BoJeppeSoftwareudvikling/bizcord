@@ -1,4 +1,20 @@
 services:
+  api-gateway:
+    build: ./apps/api-gateway
+    depends_on:
+      channel-microservice:
+        condition: service_started
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: "8080"
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: "${API_GATEWAY_VAULT_TOKEN:-}"
+    networks:
+      - default
+      - backend
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:

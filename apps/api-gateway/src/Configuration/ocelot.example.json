@@ -1,0 +1,127 @@
+{
+  "Routes": [
+    {
+      "Key": "channel-graphql",
+      "UpstreamPathTemplate": "/graphql",
+      "UpstreamHttpMethod": ["POST"],
+      "DownstreamPathTemplate": "/graphql",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "channel-microservice", "Port": 8080 }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": ["Bearer"]
+      }
+    },
+    {
+      "Key": "channel-current-user",
+      "Priority": 2,
+      "UpstreamPathTemplate": "/channels/me",
+      "UpstreamHttpMethod": ["GET"],
+      "DownstreamPathTemplate": "/channels/me",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "channel-microservice", "Port": 8080 }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": ["Bearer"],
+        "AllowedScopes": ["channel.read"]
+      },
+      "AddHeadersToRequest": {
+        "X-UserId": "Claims[sub] > value",
+        "X-Role": "Claims[role] > value"
+      }
+    },
+    {
+      "Key": "channel-list",
+      "UpstreamPathTemplate": "/channels",
+      "UpstreamHttpMethod": ["GET"],
+      "DownstreamPathTemplate": "/channels",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "channel-microservice", "Port": 8080 }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": ["Bearer"],
+        "AllowedScopes": ["channel.read"]
+      },
+      "AddHeadersToRequest": {
+        "X-UserId": "Claims[sub] > value",
+        "X-Role": "Claims[role] > value"
+      }
+    },
+    {
+      "Key": "channel-create",
+      "UpstreamPathTemplate": "/channels",
+      "UpstreamHttpMethod": ["POST"],
+      "DownstreamPathTemplate": "/channels",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "channel-microservice", "Port": 8080 }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": ["Bearer"],
+        "AllowedScopes": ["channel.write"]
+      },
+      "AddHeadersToRequest": {
+        "X-UserId": "Claims[sub] > value",
+        "X-Role": "Claims[role] > value"
+      },
+      "DownstreamHeaderTransform": {
+        "Location": "{DownstreamBaseUrl}, {BaseUrl}"
+      }
+    },
+    {
+      "Key": "channel-get",
+      "UpstreamPathTemplate": "/channels/{id}",
+      "UpstreamHttpMethod": ["GET"],
+      "DownstreamPathTemplate": "/channels/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "channel-microservice", "Port": 8080 }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": ["Bearer"],
+        "AllowedScopes": ["channel.read"]
+      },
+      "AddHeadersToRequest": {
+        "X-UserId": "Claims[sub] > value",
+        "X-Role": "Claims[role] > value"
+      }
+    },
+    {
+      "Key": "channel-update-delete",
+      "UpstreamPathTemplate": "/channels/{id}",
+      "UpstreamHttpMethod": ["PUT", "DELETE"],
+      "DownstreamPathTemplate": "/channels/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "channel-microservice", "Port": 8080 }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": ["Bearer"],
+        "AllowedScopes": ["channel.write"]
+      },
+      "AddHeadersToRequest": {
+        "X-UserId": "Claims[sub] > value",
+        "X-Role": "Claims[role] > value"
+      }
+    },
+    {
+      "Key": "channel-internal-exists",
+      "UpstreamPathTemplate": "/internal/channels/{id}/exists",
+      "UpstreamHttpMethod": ["GET"],
+      "DownstreamPathTemplate": "/internal/channels/{id}/exists",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        { "Host": "channel-microservice", "Port": 8080 }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKeys": ["Bearer"]
+      },
+      "RouteClaimsRequirement": {
+        "role": "internal-service"
+      }
+    }
+  ]
+}

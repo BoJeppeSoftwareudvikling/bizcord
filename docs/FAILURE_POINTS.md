@@ -264,10 +264,5 @@ de enkelte fund er forslag til næste verifikation, ikke udførte tests.
 
 - Opgaveskærmbilledet *Task 01: Identify failure points in your microservice*,
   leveret sammen med implementeringsønsket.
-- [[00 Subjects/System Integration/W44 - Reliability in microservices/W44 - Reliability in microservices|W44 - Reliability in microservices]].
-- [[00 Subjects/System Integration/W44 - Reliability in microservices/Kapitel 12 - Resiliency - TLDR|Kapitel 12 - Resiliency - TLDR]], om fejl i dependencies, degradering, tidsbudgetter og stability patterns.
-- [[00 Subjects/System Integration/W44 - Reliability in microservices/Retry og fallback med Polly i distributed-counter|Retry og fallback med Polly i distributed-counter]], om lærerens policies og deres begrænsninger.
-- [[00 Subjects/System Integration/W44 - Reliability in microservices/Resources/distributed-counter/projects/CounterService/Core/Services/NewLikeService.cs|Lærerens NewLikeService.cs]] og [[00 Subjects/System Integration/W44 - Reliability in microservices/Resources/distributed-counter/projects/CounterService/Core/Services/LikeAggregationService.cs|LikeAggregationService.cs]], gennemgået sammen med noterne.
-
-Kildehenvisningerne til undervisningsmaterialet er Obsidian-links til den lokale
-vault. Kodehenvisningerne ovenfor er relative links til filer i Bizcord.
+- W44: *Reliability in microservices* og kapitel 12, *Resiliency*, om fejl i dependencies, tidsbudgetter og stability patterns.
+- [Underviserens distributed-counter](https://github.com/patrickstolc/distributed-counter), herunder `NewLikeService` og `LikeAggregationService` som eksempler på retry og fallback.

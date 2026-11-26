@@ -169,8 +169,5 @@ bekræftede også, at DI leverer den nye wrapper. Buildet gav ingen advarsler.
 
 - Opgaveskærmbilledet *Task 02: Implement reliability measures in your microservices*.
 - [Task 01: Fejlpunkter](FAILURE_POINTS.md), især FP01, FP04 og FP06.
-- [[00 Subjects/System Integration/W44 - Reliability in microservices/Kapitel 12 - Resiliency - TLDR|Kapitel 12 - Resiliency - TLDR]], om tidsbudget, bulkheads, load shedding og sikre retries.
-- [[00 Subjects/System Integration/W44 - Reliability in microservices/Retry og fallback med Polly i distributed-counter|Retry og fallback med Polly i distributed-counter]], om lærerens konkrete policyvalg og begrænsninger.
-
-Undervisningskilderne er Obsidian-links til vaulten. Implementationsvalg og
-standardværdier ovenfor er projektets egne valg.
+- Kapitel 12, *Resiliency*, om tidsbudgetter, bulkheads, load shedding og sikre retries.
+- [Underviserens distributed-counter](https://github.com/patrickstolc/distributed-counter) viser retry og fallback med Polly. Standardværdierne ovenfor er Bizcords egne.
