@@ -1,38 +1,11 @@
 # Week 43: API gateway, routing, and authorization
 
-This note records the work completed for the System Integration week 43 tasks. It
-is intended as source material for later project and exam documentation.
+## Current setup
 
-> **Historical setup:** Week 43 used the host mapping `localhost:8000` and
-> `host.docker.internal`. Week 45 removed that public Channel Service port and
-> connected the gateway directly to `channel-microservice:8080` on the private
-> `bizcord-backend` network. See `Week45EastWestSecurity.md` for the current setup.
+Run the [Vault bootstrap and stack](Week45VaultIntegration.md#manual-setup-and-verification) from the Bizcord root.
+Ocelot accepts requests on `localhost:8080` and forwards them to `channel-microservice:8080` on the private Docker network. See the [route definitions](../apps/api-gateway/src/Configuration/ocelot.example.json) and [gateway startup](../apps/api-gateway/src/Program.cs).
 
-## Scope and repository setup
-
-The Channel Service remains in the Bizcord repository. The Ocelot API gateway is
-run from a separate clone of the teaching repository:
-
-- Bizcord: `/home/jklh/studies/projects/bizcord`
-- API gateway: `/home/jklh/studies/projects/api-gateway`
-- Public gateway entry point: `http://localhost:8080`
-- Channel Service host port: `http://localhost:8000`
-- Gateway-to-service address: `http://host.docker.internal:8000`
-
-`host.docker.internal` is required because the gateway runs in Docker. Inside the
-gateway container, `localhost` identifies the gateway container itself, not the
-host machine or the Channel Service container.
-
-```text
-Client
-  -> localhost:8080 (Ocelot API gateway)
-  -> host.docker.internal:8000 (Channel Service)
-  -> Channel Service container port 8080
-```
-
-The two repositories and Compose stacks are deliberately independent. This keeps
-the microservice in its existing repository while giving each team its own local
-gateway configuration.
+The original week 43 exercise ran the teaching gateway from a separate checkout and routed through host port 8000. Week 45 moved the service onto the private network. The submission includes our configured gateway in the same checkout.
 
 ## Task 01: routing configuration
 
@@ -113,26 +86,11 @@ Client token
 
 ### Trust boundary
 
-The Channel Service trusts these headers only when traffic comes from the gateway.
-A direct request to port `8000` bypasses gateway authentication. This is acceptable
-for the local exercise, but a production deployment must not expose that port to
-untrusted clients. The service should be isolated on a private network, protected
-with service-to-service authentication, or validate tokens itself.
+Public REST actions read identity headers supplied by the gateway. The Channel Service port is private. The [internal existence endpoint](Week45EastWestSecurity.md) and [GraphQL endpoint](Week47GraphQLPresentation.md) also validate JWTs in the service.
 
 ## Manual verification
 
-Start Bizcord and the API gateway in separate terminals, rebuilding after gateway
-configuration changes:
-
-```bash
-cd /home/jklh/studies/projects/bizcord
-docker compose up --build
-```
-
-```bash
-cd /home/jklh/studies/projects/api-gateway
-docker compose up --build
-```
+Start the stack as described above.
 
 Obtain read and write tokens from the teaching faucet. Replace the example token
 values in later commands with the returned values.
@@ -140,11 +98,11 @@ values in later commands with the returned values.
 ```bash
 curl -sS -X POST http://localhost:8080/faucet \
   -H 'Content-Type: application/json' \
-  -d '{"sub":"student-123","role":"member","scopes":["channel.read"]}'
+  -d '{"claims":{"sub":"student-123","role":"member","scope":"channel.read"}}'
 
 curl -sS -X POST http://localhost:8080/faucet \
   -H 'Content-Type: application/json' \
-  -d '{"sub":"student-123","role":"member","scopes":["channel.write"]}'
+  -d '{"claims":{"sub":"student-123","role":"member","scope":"channel.write"}}'
 ```
 
 Verify authentication, authorization, and identity forwarding:
@@ -181,12 +139,12 @@ Also compare a real endpoint directly and through the gateway. The response body
 should match, while gateway access additionally requires the correct token:
 
 ```bash
-curl -i http://localhost:8000/channels
+docker run --rm --network bizcord-backend curlimages/curl:8.10.1 -i http://channel-microservice:8080/channels
 curl -i http://localhost:8080/channels \
   -H 'Authorization: Bearer PASTE_READ_TOKEN'
 ```
 
-## Verification record
+## Original week 43 verification record
 
 The completed implementation was tested end to end with both Compose stacks
 running:
@@ -222,8 +180,8 @@ API gateway:
 - Commit `0daa554` — configure Channel Service gateway routes.
 - Commit `e5d2e57` — rewrite the Channel Service `Location` header.
 - Commit `35f2467` — protect Channel Service routes with JWT scopes.
-- `src/Configuration/ocelot.example.json`
-- `src/ApiGateway/Program.cs`
+- `apps/api-gateway/src/Configuration/ocelot.example.json`
+- `apps/api-gateway/src/Program.cs`
 
 ## Resources
 

@@ -26,7 +26,7 @@ posting permission remains future domain work.
 
 Authentication and authorization are enforced twice for different reasons:
 
-1. Ocelot validates the bearer token and rejects callers without the required
+1. Ocelot validates the JWT signature, issuer, audience and lifetime and rejects callers without the required
    `internal-service` role before proxying.
 2. Channel Service validates the signature, issuer, audience, lifetime and role
    again before executing the controller action.
@@ -44,8 +44,7 @@ The local teaching faucet issues tokens with:
 - service authorization in `role`
 - a one-hour lifetime
 
-The symmetric signing key is no longer committed or copied into both Compose
-stacks. Week 45 task 02 stores one shared key at `secret/shared/jwt` in Vault.
+Week 45 task 02 stores one shared signing key at `secret/shared/jwt` in Vault.
 The gateway and Channel Service read it with different scoped application tokens,
 so the key remains shared while the Vault identities and policies remain separate.
 
@@ -58,8 +57,7 @@ network and `bizcord-backend`, so it can:
 - accept client traffic on host port `8080`
 - reach Channel Service at `http://channel-microservice:8080`
 
-The Bizcord Compose stack owns the internal network, while the separate gateway
-Compose stack declares it as external. Bizcord must therefore be started first.
+The root Compose file connects both workloads to this network and publishes only the gateway HTTP port for clients.
 
 Removing the public port reduces the exposed perimeter, but network placement is
 not treated as identity. The JWT policy is still enforced inside Channel Service.
@@ -81,13 +79,13 @@ not treated as identity. The JWT policy is still enforced inside Channel Service
 - `apps/channel-microservice/tests/Presentation/Controllers/InternalChannelsControllerTests.cs`
   — verifies the endpoint contract and policy annotation.
 
-### API gateway
+### API gateway (paths under `apps/api-gateway/`)
 
 - `src/Configuration/ocelot.example.json` — routes to the Docker service name and
   requires `role: internal-service` on the internal route.
 - `src/Application/Services/JwtTokenService.cs` — adds issuer and audience to
   locally issued teaching tokens.
-- `docker-compose.yml` — joins `bizcord-backend` and receives a gateway-specific
+- Root `docker-compose.yml` — joins `bizcord-backend` and receives a gateway-specific
   Vault token at runtime.
 
 ## Manual verification
@@ -96,30 +94,10 @@ The following flow verifies the public gateway path, the downstream service
 policy and the network boundary. It uses Python only to extract values from JSON,
 so `jq` is not required.
 
-### 1. Bootstrap Vault and start both Compose stacks
+### 1. Bootstrap Vault and start Bizcord
 
-First complete the setup in [Week45VaultIntegration.md](Week45VaultIntegration.md).
-The two repositories require different one-hour Vault tokens and Vault must be
-unsealed before either application starts.
-
-Start Bizcord first because it owns the shared `bizcord-backend` network:
-
-```bash
-cd /home/jklh/studies/projects/bizcord
-docker compose up -d --build
-docker compose ps
-```
-
-Then start the gateway from a second terminal:
-
-```bash
-cd /home/jklh/studies/projects/api-gateway
-docker compose up -d --build
-docker compose ps
-```
-
-The Channel Service should be running without a published host port. The gateway
-should publish `127.0.0.1:8080`.
+Complete the [Vault setup](Week45VaultIntegration.md#manual-setup-and-verification) from the repository root.
+Run `docker compose ps`. The gateway should publish `127.0.0.1:8080` and Channel Service should have no published host port.
 
 ### 2. Create a channel through the public gateway
 
@@ -269,17 +247,9 @@ not be reachable through the old host port.
 
 ### 9. Stop the temporary environment
 
-Stop the gateway first because it is attached to Bizcord's network:
+From the repository root:
 
 ```bash
-cd /home/jklh/studies/projects/api-gateway
-docker compose down
-```
-
-Then stop Bizcord:
-
-```bash
-cd /home/jklh/studies/projects/bizcord
 docker compose down
 ```
 

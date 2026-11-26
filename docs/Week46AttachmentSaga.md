@@ -12,9 +12,26 @@ Bizcord can record a pending attachment in a busy channel while its author's quo
 
 The three simulators share an executable in simulator mode and own separate SQLite files. Communication uses Bizcord's existing EasyNetQ-backed `IMessageClient` over RabbitMQ. The coordinator owns the sequence because a quota refusal and an activation failure require different compensation. Checking quota before posting would reduce visible reversals in a real product. The late check exercises the scenario where a message may already have been seen.
 
+## Saga design
+
+Week 46 task 02 is titled “using Rebus”. Its detailed instructions ask for coordination through the project's existing MessageClient without a saga framework. We followed those instructions. [UploadCoordinator](../apps/upload-workflow/UploadCoordinator.cs) uses EasyNetQ and stores the expected step in SQLite. With choreography, each participant would need to know which earlier steps to undo after a later rejection.
+
+```mermaid
+flowchart LR
+    S[Stage file] --> M[Post provisional message] --> C[Record activity] --> Q[Reserve quota] --> A[Activate file] --> OK[Completed]
+    S -->|refused| NO[Rejected]
+    M -->|refused| D[Delete staged file]
+    C -->|refused| RM[Retract message]
+    Q -->|refused| RC[Retract activity]
+    A -->|refused| RQ[Release quota]
+    RQ --> RC --> RM --> D --> NO
+```
+
+Each command carries the upload ID and step. The coordinator advances only on a matching reply. A missing reply leaves the command pending for redelivery. Compensation removes this upload's contribution to unread counts and preserves later channel activity. A user who already saw the message may remember it after retraction.
+
 ## Run the workflow
 
-From the repository root, build with the .NET 10 SDK. Start Bizcord, its gateway and a channel using the [existing stack instructions](../README.md#start) and [authenticated channel creation example](Week45VaultIntegration.md). Keep the channel ID. Use the local broker address reachable from the host. Enter its connection string at the prompt (for example, `host=localhost;username=<user>;password=<password>`).
+From the repository root, build with the .NET 10 SDK. Start Bizcord, its gateway and a channel using the [existing stack instructions](../README.md#start) and [authenticated channel creation example](Week45VaultIntegration.md#7-start-both-applications-and-test-the-shared-jwt-key). Keep the channel ID. Use the local broker address reachable from the host. Enter its connection string at the prompt (for example, `host=localhost;username=<user>;password=<password>`).
 
 ```bash
 dotnet build Bizcord.slnx
@@ -32,9 +49,9 @@ Wait for both ready messages before starting the first upload. Paste the ID of t
 
 ```bash
 read -rp 'Existing channel GUID: ' channel_id
-user_id=$(cat /proc/sys/kernel/random/uuid)
-first=$(cat /proc/sys/kernel/random/uuid)
-second=$(cat /proc/sys/kernel/random/uuid)
+user_id=$(python3 -c 'import uuid; print(uuid.uuid4())')
+first=$(python3 -c 'import uuid; print(uuid.uuid4())')
+second=$(python3 -c 'import uuid; print(uuid.uuid4())')
 workflow start "$first" "$user_id" "$channel_id" 800000
 workflow status "$first"
 ```

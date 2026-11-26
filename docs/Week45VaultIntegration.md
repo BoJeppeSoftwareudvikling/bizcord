@@ -107,31 +107,29 @@ initialization API would not be reachable at `localhost:8200` in this Docker set
   verifies the request, success parsing, denied access, sealed state and a missing
   key without using real secret values.
 
-### API gateway
+### API gateway (paths under `apps/api-gateway/`)
 
 - `src/Infrastructure/Secrets/VaultSecretReader.cs` owns its KV v2 read.
 - `src/Infrastructure/Secrets/VaultConfigurationExtensions.cs` maps the signing
   key to the gateway's existing `AuthenticationProviderKey` configuration key.
 - `src/Program.cs` loads the key before JWT services are registered.
-- `docker-compose.yml` delivers only the gateway's own Vault token.
+- The root `docker-compose.yml` delivers only the gateway's own Vault token.
 - `tests/smoke.py` uses a temporary fake Vault to prove startup retrieval while
   retaining the isolated gateway routing and authentication suite.
 
 ## Manual setup and verification
 
-The following commands intentionally do not print secret values. Run Bizcord
-commands from `/home/jklh/studies/projects/bizcord` unless another directory is
-shown.
+Run the commands from the Bizcord repository root in Bash. Initialization and token creation display credentials once. Store them privately.
 
 ### 1. Start the infrastructure
 
 Create the local file if needed:
 
 ```bash
-cp .env.example .env
+cp -n .env.example .env
 ```
 
-Set `RABBITMQ_USER` and `RABBITMQ_PASSWORD`, but leave `VAULT_TOKEN` unset until
+Set `RABBITMQ_USER` to a local user such as `bizcord` and choose a password. Leave the token placeholders until
 the scoped Channel Service token has been created. Then start only the infrastructure:
 
 ```bash
@@ -153,7 +151,7 @@ docker compose exec vault vault operator init \
   -key-threshold=2
 ```
 
-Store all three unseal shares and the initial root token outside the repositories.
+Store all three unseal shares and the initial root token outside the repository.
 Enter two different shares without putting them in shell history:
 
 ```bash
@@ -197,7 +195,7 @@ unset JWT_KEY
 
 Use a RabbitMQ value shaped like
 `host=rabbitmq;username=<user>;password=<password>`. Use a randomly generated JWT
-key of at least 32 bytes. Neither value belongs in either repository's `.env`.
+key of at least 32 bytes. Store both values in Vault.
 
 ### 4. Create the read-only policies
 
@@ -233,19 +231,9 @@ docker compose exec vault vault token create \
   -policy=api-gateway -no-default-policy -ttl=1h -renewable=false
 ```
 
-Copy only the first token into Bizcord's ignored `.env`:
-
-```env
-RABBITMQ_USER=replace-me
-RABBITMQ_PASSWORD=replace-me
-VAULT_TOKEN=the-channel-service-token
-```
-
-Copy only the second token into `/home/jklh/studies/projects/api-gateway/.env`:
-
-```env
-VAULT_TOKEN=the-api-gateway-token
-```
+Edit the existing root `.env`, keeping the RabbitMQ settings used in step 1.
+Set `VAULT_TOKEN` to the Channel Service token and `API_GATEWAY_VAULT_TOKEN` to the gateway token.
+Compose passes each service its own token as `VAULT_TOKEN`.
 
 Do not reuse the root token. The application tokens expire after one hour; create
 new ones before a later test session.
@@ -302,11 +290,8 @@ unset CHANNEL_VAULT_TOKEN GATEWAY_VAULT_TOKEN
 ### 7. Start both applications and test the shared JWT key
 
 ```bash
-cd /home/jklh/studies/projects/bizcord
-docker compose up -d --build channel-microservice
-
-cd /home/jklh/studies/projects/api-gateway
 docker compose up -d --build
+docker compose ps
 ```
 
 Request a write token, create a channel, and call the internal route with a service
@@ -348,11 +333,7 @@ with the same Vault-managed key.
 Stop both applications, restart Vault, and confirm it is sealed:
 
 ```bash
-cd /home/jklh/studies/projects/api-gateway
-docker compose stop api-gateway
-
-cd /home/jklh/studies/projects/bizcord
-docker compose stop channel-microservice
+docker compose stop api-gateway channel-microservice
 docker compose restart vault
 docker compose exec vault vault status
 ```
@@ -387,10 +368,6 @@ delete the named Vault volume.
 ### 9. Stop the environment
 
 ```bash
-cd /home/jklh/studies/projects/api-gateway
-docker compose down
-
-cd /home/jklh/studies/projects/bizcord
 docker compose down
 ```
 

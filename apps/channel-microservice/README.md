@@ -4,6 +4,8 @@ ASP.NET Core Web API for Bizcord channel management.
 
 ## Course tasks
 
+[Week 48 reviewer guide for all ten tasks](../../docs/Week48Review.md)
+
 - [Week 44, task 01: Identify failure points](../../docs/FAILURE_POINTS.md)
 - [Week 44, task 02: Implement reliability measures](../../docs/Week44ReliabilityMeasures.md)
 - [Week 45, task 01: East-west security](../../docs/Week45EastWestSecurity.md)

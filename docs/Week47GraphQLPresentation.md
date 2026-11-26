@@ -17,9 +17,7 @@ Client → API gateway /channels     → REST controller ──────┤
                                            Repository + IMessageClient
 ```
 
-The gateway repository also needs the new `channel-graphql` route in
-`src/Configuration/ocelot.example.json`. Rebuild both repositories when running
-this feature. The service's HTTP port remains internal to `bizcord-backend`.
+The bundled [Ocelot configuration](../apps/api-gateway/src/Configuration/ocelot.example.json) defines the `channel-graphql` route on the private `bizcord-backend` network.
 
 ## API contract
 
@@ -43,17 +41,7 @@ aggregation are outside this task.
 
 ## Run the example
 
-Prepare Vault and application tokens using the existing
-[Vault guide](Week45VaultIntegration.md). Then build/start Bizcord followed by the
-gateway:
-
-```bash
-# From the Bizcord repository
-docker compose up -d --build
-
-# From the api-gateway repository
-docker compose up -d --build
-```
+Complete the [Vault setup](Week45VaultIntegration.md#manual-setup-and-verification), then run `docker compose up -d --build` from the repository root.
 
 The local teaching faucet can issue a token with both GraphQL scopes:
 
